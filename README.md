@@ -6,20 +6,25 @@ loot provides a simple class called "base" which operates on a template. Templat
 For example, in template "Hello, %username%!" there is one marker - "username". 
 
 In order to make a template class, inherit it from the "base" class and provide a template in its "template" field:
+
     greeting_template = class(base)
     greeting_template.template = "Hello, %username%!"
 
 Create an instance of this class to use the template.
+
     greeting = greeting_template()
 
 The "base" class provides a method "build" which returns the template with markers substituted with corresponding fields of the object calling this method. The needed data can be provided directly or using object initialization method "init":
+
     greeting.username = "Mr. Smith"
     greeting = greeting_template{username = "Mr. Smith"} -- the same
 
 Finally, the usage of the above mentioned method "build":
+
     print(greeting:build()) -- Hello, Mr. Smith!
 
 The "template" function is a shortcut for creating a template class and passing a template string to it:
+
     greeting_template = template "Hello, %username%!"
 
 @TODO: implement the following. 
