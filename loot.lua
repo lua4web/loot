@@ -2,6 +2,8 @@ local class = require "oop"
 
 local find = string.find
 local sub = string.sub
+local insert = table.insert
+local concat = table.concat
 
 local base = class()
 
@@ -11,28 +13,39 @@ function base:init(markers)
 	end
 end
 
+function base:getmarker(marker)
+	if self[marker] then
+		if type(self[marker]) == "table" then
+			local subtemplate = self[marker](self)
+			return subtemplate:build()
+		else
+			return self[marker]
+		end
+	else
+		return "%"..marker.."%"
+	end
+end
+
 function base:build()
-	self.template = self.template or ""
-	local res = ""
+	local res = {}
 	local start, finish, marker
 	local prev = 0
 	
 	repeat
 		start, finish, marker = find(self.template, "%%(%a*)%%", prev+1)
+		start = start or 0
+		insert(res, sub(self.template, prev+1, start-1))
 		if marker then
-			res = res..sub(self.template, prev+1, start-1)
 			if marker == "" then
-				res = res.."%"
+				insert(res, "%")
 			else
-				res = res..(self[marker] or ("%"..marker.."%"))
+				insert(res, self:getmarker(marker))
 			end
-		else
-			res = res..sub(self.template, prev+1)
 		end
 		prev = finish
 	until not marker
 	
-	return res
+	return concat(res)
 end
 
 local function template(parent)
