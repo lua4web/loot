@@ -27,12 +27,15 @@ The "template" function is a shortcut for creating a template class and passing 
 
     greeting_template = template "Hello, %username%!"
 
-@TODO: implement the following. 
-
 Not only strings can be used as the values of fields used by markers. In case of the needed data being of type "table", it is considered another template class inherited from the "base" class. An instance of it is created and initialized with all the data the main template object holds. Then its method "build" is called and the result is used to substitute the marker. 
 
 This allows to build a structured system of templates, with smaller ones being used as elements of top-level elements.
 
 ## Status
-loot is still under development. Current version does not parse structured templates.
+loot is still under development. Current version seems to parse structured templates correctly.
+
+## TODO
+1. Rewrite markers_iter() in C to improve performance
+2. Write a comprehensive manual
+3. Test possibilities of complex systems of templates
    

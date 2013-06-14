@@ -26,9 +26,14 @@ end
 local base = class()
 
 function base:init(markers)
-	for k, v in pairs(markers) do
-		self[k] = v
+	local mt = getmetatable(self)
+	local old_index = mt.__index or {}
+	
+	function mt.__index(t, k)
+		return old_index[k] or markers[k]
 	end
+	
+	setmetatable(self, mt)
 end
 
 function base:getmarker(marker)
