@@ -34,11 +34,9 @@ end
 function base:getmarker(marker)
 	if self[marker] then
 		if type(self[marker]) == "table" then
-			local subtemplate = self[marker](self)
-			return subtemplate:build()
-		else
-			return self[marker]
+			self[marker] = self[marker](self):build()
 		end
+		return self[marker]
 	else
 		return "%"..marker.."%"
 	end
