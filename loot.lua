@@ -46,8 +46,6 @@ end
 
 function base:build()
 	local res = {}
-	local start, finish, marker
-	local prev = 0
 	
 	for i, before, marker in markers(self.template) do
 		insert(res, before)
