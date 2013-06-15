@@ -81,4 +81,4 @@ local function template(parent)
 	end
 end
 
-return {class = class, template = template, base = base}
+return {template = template, base = base}

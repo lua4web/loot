@@ -1,43 +1,47 @@
 # loot
+
 ## Introduction
+
 loot is an object oriented template system for [Lua](http://www.lua.org/). loot uses a simple OOP implementation using metamethods. It can be found in the oop.lua file. 
 
-loot provides a simple class called "base" which operates on a template. Template is just a string. It can contain several markers. Marker is a word surrounded by percentage signs. 
-For example, in template "Hello, %username%!" there is one marker - "username". 
+loot provides a simple class called "base" which operates on a template string. It can contain several markers. Marker is a word surrounded by percentage signs. 
+Use loot.template() function to create a new template class. 
 
-In order to make a template class, inherit it from the "base" class and provide a template in its "template" field:
+    local loot = require "loot"
+    greeting_template = loot.template "Hello, %username%!" -- creating a template class
+    greeting_object = greeting_template{                   -- creating a template object
+        username = "mrsmith"
+    }
+    greeting_text = greeting_object()                      -- parsing template
+    print(greeting_text)                                   -- Hello, mrsmith!
 
-    greeting_template = class(base)
-    greeting_template.template = "Hello, %username%!"
 
-Create an instance of this class to use the template.
+### Advanced usage
 
-    greeting = greeting_template()
+When a template_object of is parsed, %marker% is substituted with template_object.marker. Due to OOP mechanics, template_object.marker can refer to field of template_object, field of template_class(the class of template_object) or field of any class template_class inherited from. 
 
-The "base" class provides a method "__build" which returns the template with markers substituted with corresponding fields of the object calling this method. The needed data can be provided directly or using object initialization method:
+If template_object.marker is a function, then it is called as method of template_object(the result is used to substitute the marker). This can be used to add complex behaviour to template. 
 
-    greeting.username = "Mr. Smith"
-    greeting = greeting_template{username = "Mr. Smith"} -- the same
+If template_object.marker is a table, then it is considered another template class. It is parsed and the result is used to substitute the marker. This can be used to build a structured system of linked templates. 
 
-Finally, the usage of the above mentioned method "__build":
+An example of these techniques can be found in [test.lua](https://github.com/lua4web/loot/blob/master/test.lua)
 
-    print(greeting:__build()) -- Hello, Mr. Smith!
+## Reference
 
-The "template" function is a shortcut for creating a template class and passing a template string to it:
+### loot.template(string || class)
 
-    greeting_template = template "Hello, %username%!"
+Returns a new template class.
+If the argument is a string, it's used as the template for the created class. 
+If the argument is a class, it's used as the parent to inherit from. 
 
-Not only strings can be used as the values of fields used by markers. In case of the needed data being of type "table", it is considered another template class inherited from the "base" class. An instance of it is created and initialized with all the data the main template object holds. Then its method "__build" is called and the result is used to substitute the marker. 
+### template_class(table)
 
-If a function is a value of marker is a function, it is called as a method and result is used to substitute the marker. 
+Creates a new object of the template class and initializes it with provided table of markers. 
 
-This allows to build a structured system of templates, with smaller ones being used as elements of top-level elements.
+### template_object()
+
+Returns parsed template using markers provided to the template object. 
 
 ## Status
-loot is still under development. Current version seems to parse structured templates correctly.
 
-## TODO
-1. Rewrite markers_iter() in C to improve performance
-2. Write a comprehensive manual
-3. Test possibilities of complex systems of templates
-   
+loot is still under development. 

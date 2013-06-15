@@ -1,7 +1,7 @@
 -- Simple OOP implementation using metamethods.
 -- Class refers to its parent, object refers to its class.
 -- Methods use colon syntax.
--- init() method is called upon initialization of objects.
+-- __init() method is called upon initialization of objects.
 
 local function class(parent)
 	
