@@ -27,8 +27,8 @@ local function class(parent)
 		setmetatable(obj, {__index = c})
 			
 		-- initialization
-		if c.init then
-			c.init(obj, ...)
+		if c.__init then
+			c.__init(obj, ...)
 		end
 		return obj
 	end

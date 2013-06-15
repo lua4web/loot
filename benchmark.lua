@@ -43,13 +43,8 @@ body = template[[
 page = template(genericpage)
 page.body = body
 
-function page:init(markers)
-	if markers.logged then
-		self.panel = userpanel
-	else
-		self.panel = loginpanel
-	end
-	base.init(self, markers)
+function page:panel()
+	return self.logged and userpanel or loginpanel
 end
 
 homepage = template(page)
@@ -69,8 +64,8 @@ homepage2 = homepage{
 
 start = os.clock()
 for i=1, N do
-	homepage1:build()
-	homepage2:build()
+	homepage1()
+	homepage2()
 end
 
 print("Total time for "..N.."*2 build() calls: "..(os.clock() - start))

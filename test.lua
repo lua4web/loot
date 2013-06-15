@@ -36,13 +36,8 @@ body = template[[
 page = template(genericpage)
 page.body = body
 
-function page:build()
-	if self.logged then
-		self.panel = userpanel
-	else
-		self.panel = loginpanel
-	end
-	return base.build(self)
+function page:panel()
+	return self.logged and userpanel or loginpanel
 end
 
 homepage = template(page)
@@ -58,6 +53,6 @@ homepage2 = homepage{
 	logged = false
 }
 
-print(homepage1:build())
+print(homepage1())
 print()
-print(homepage2:build())
+print(homepage2())

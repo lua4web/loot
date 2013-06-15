@@ -25,21 +25,28 @@ end
 
 local base = class()
 
-function base:init(markers)
+function base:__init(markers)
 	local mt = getmetatable(self)
 	local old_index = mt.__index or {}
 	
 	function mt.__index(t, k)
 		return old_index[k] or markers[k]
 	end
+
+	function mt.__call(t, ...)
+		return self:__build(...)
+	end
 	
 	setmetatable(self, mt)
 end
 
-function base:getmarker(marker)
+function base:__getmarker(marker)
 	if self[marker] then
+		if type(self[marker]) == "function" then
+			self[marker] = self[marker](self)
+		end
 		if type(self[marker]) == "table" then
-			self[marker] = self[marker](self):build()
+			self[marker] = self[marker](self)()
 		end
 		return self[marker]
 	else
@@ -47,7 +54,7 @@ function base:getmarker(marker)
 	end
 end
 
-function base:build()
+function base:__build()
 	local res = {}
 	
 	for i, before, marker in markers(self.template) do
@@ -56,7 +63,7 @@ function base:build()
 			if marker == "" then
 				insert(res, "%")
 			else
-				insert(res, self:getmarker(marker))
+				insert(res, self:__getmarker(marker))
 			end
 		end
 	end
