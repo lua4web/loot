@@ -3,6 +3,21 @@
 -- Methods use colon syntax.
 -- __init() method is called upon initialization of objects.
 
+-- constructor
+local function construct(c, ...)
+	-- resulting object
+	local obj = {}
+		
+	-- adding references to class members
+	setmetatable(obj, {__index = c})
+			
+	-- initialization
+	if c.__init then
+		c.__init(obj, ...)
+	end
+	return obj
+end
+
 local function class(parent)
 	
 	-- resulting class
@@ -17,21 +32,7 @@ local function class(parent)
 	-- inheritance
 	mt.__index = parent
 	
-	-- constructor
-	function mt.__call(t, ...)
-		
-		-- resulting object
-		local obj = {}
-		
-		-- adding references to class members
-		setmetatable(obj, {__index = c})
-			
-		-- initialization
-		if c.__init then
-			c.__init(obj, ...)
-		end
-		return obj
-	end
+	mt.__call = construct
 	
 	setmetatable(c, mt)
 	return c
