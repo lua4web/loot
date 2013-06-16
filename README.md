@@ -2,7 +2,7 @@
 
 ## Introduction
 
-loot is an object oriented template system for [Lua](http://www.lua.org/). loot uses a simple OOP implementation using metamethods. It can be found in the oop.lua file. 
+loot is an object oriented template system for [Lua](http://www.lua.org/). loot uses a simple OOP implementation using metamethods. It can be found in oop.lua. 
 
 loot provides a simple class called "base" which operates on a template string. It can contain several markers. Marker is a word surrounded by percentage signs. 
 Use loot.template() function to create a new template class. 
@@ -24,7 +24,7 @@ If template_object.marker is a function, then it is called as method of template
 
 If template_object.marker is a table, then it is considered another template class. It is parsed and the result is used to substitute the marker. This can be used to build a structured system of linked templates. 
 
-An example of these techniques can be found in [test.lua](https://github.com/lua4web/loot/blob/master/test.lua)
+An example of these techniques can be found in test.lua.
 
 ## Reference
 

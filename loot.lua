@@ -26,6 +26,9 @@ end
 local base = class()
 
 function base:__init(markers)
+	local markers = markers or {}
+	self.__markers = markers
+	
 	local mt = getmetatable(self)
 	local old_index = mt.__index or {}
 	
@@ -41,14 +44,16 @@ function base:__init(markers)
 end
 
 function base:__getmarker(marker)
-	if self[marker] then
-		if type(self[marker]) == "function" then
-			self[marker] = self[marker](self)
+	local val = self[marker]
+	if val then
+		if type(val) == "function" then
+			val = val(self)
 		end
-		if type(self[marker]) == "table" then
-			self[marker] = self[marker](self)()
+		if type(val) == "table" then
+			val = val(self)()
 		end
-		return self[marker]
+		self[marker] = val
+		return val
 	else
 		return "%"..marker.."%"
 	end
@@ -57,7 +62,7 @@ end
 function base:__build()
 	local res = {}
 	
-	for i, before, marker in markers(self.template) do
+	for i, before, marker in markers(self.__template) do
 		insert(res, before)
 		if marker then
 			if marker == "" then
@@ -76,7 +81,7 @@ local function template(parent)
 		return class(parent)
 	else
 		local c = class(base)
-		c.template = parent
+		c.__template = parent
 		return c
 	end
 end
