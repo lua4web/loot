@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>loot</title>
+<meta charset="utf-8">
+</head>
+
+<body>
+
+<article>
+
+<h1>loot</h1>
+
+<h2>Introduction</h2>
+
+<p>loot is an object oriented template system for <a href="http://www.lua.org/">Lua</a>. <br>
+loot uses a simple OOP implementation using metamethods. Objects refer to classes using __index metamethod, and classes refer to classes they inherited from in the same way. Methods are called using colon syntax, and __init method is automatically called upon creating of an object. </p>
+
+<p>loot provides a simple class called "base" which operates on a template string. It can contain several markers. Marker is a string surrounded by percentage signs. Markers shouldn't start with two underscores. In order to represent a percentage sign without any special meaning, double it. <br>
+Use loot.template() function to create a new template class. </p>
+
+<pre><code>local loot = require "loot"
+greeting_template = loot.template "Hello, %username%!" -- creating a template class
+greeting_object = greeting_template{                   -- creating a template object
+	username = "mrsmith"
+}
+greeting_text = greeting_object()                      -- parsing template
+print(greeting_text)                                   -- Hello, mrsmith!
+</code></pre>
+
+<h3>Advanced usage</h3>
+
+<p>When a template_object of is parsed, %marker% is substituted with template_object.marker. Due to OOP mechanics, template_object.marker can refer to field of template_object, field of template_class(the class of template_object) or field of any class template_class inherited from. </p>
+
+<p>If template_object.marker is a function, then it is called as method of template_object(the result is used to substitute the marker). This can be used to add complex behaviour to template. </p>
+
+<p>If template_object.marker is a table, then it is considered another template class. It is parsed and the result is used to substitute the marker. This can be used to build a structured system of linked templates. </p>
+
+<h2>Reference</h2>
+
+<h3>loot.template(string || class)</h3>
+
+<p>Returns a new template class. <br>
+If the argument is a string, it's used as the template for the created class. <br>
+If the argument is a class, it's used as the parent to inherit from. </p>
+
+<h3>template_class(table)</h3>
+
+<p>Creates a new object of the template class and initializes it with provided table of markers. </p>
+
+<h3>template_object()</h3>
+
+<p>Returns parsed template using markers provided to the template object. <br>
+Note: an attempt to print, concatate, or call tostring() on a template object will automatically build it. </p>
+
+<h2>Status</h2>
+
+<p>loot is still under development. </p>
+
+<h2>Licensing</h2>
+
+<p>loot is (going to be) licensed under the same license as Lua. </p>
+
+</article>
+
+</body>
+
+</html>
