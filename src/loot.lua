@@ -1,5 +1,5 @@
 local class = require "oop"
-
+local build = require "build".build
 local tostring = tostring
 local find = string.find
 local sub = string.sub
@@ -68,7 +68,7 @@ function base:__init(markers)
 end
 
 function base:__getmarker(marker)
-	return self[marker] or "%"..marker.."%"
+	return marker == "" and "%" or self[marker] or "%"..marker.."%"
 end
 
 function base:__build()
@@ -76,20 +76,11 @@ function base:__build()
 		self:__prepare()
 	end
 
-	local res = {}
-	
-	for i, before, marker in markers(self.__template) do
-		insert(res, before)
-		if marker then
-			if marker == "" then
-				insert(res, "%")
-			else
-				insert(res, self:__getmarker(marker))
-			end
-		end
+	local function helper(marker)
+		return self:__getmarker(marker)
 	end
-	
-	return concat(res)
+
+	return build(self.__template, helper)
 end
 
 local function template(parent)
