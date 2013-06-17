@@ -60,7 +60,7 @@ homepage2 = homepage{
 	logged = false
 }
 
-print(homepage1()) --[[
+print(homepage1) --[[
 <html>
 <head>
 <title>My homepage</title>
@@ -78,7 +78,7 @@ Welcome to my page!
 </html>
 ]]
 
-print(homepage2()) --[[
+print(homepage2) --[[
 <html>
 <head>
 <title>My homepage</title>

@@ -4,7 +4,7 @@
 
 loot is an object oriented template system for [Lua](http://www.lua.org/). loot uses a simple OOP implementation using metamethods. It can be found in oop.lua. 
 
-loot provides a simple class called "base" which operates on a template string. It can contain several markers. Marker is a word surrounded by percentage signs. 
+loot provides a simple class called "base" which operates on a template string. It can contain several markers. Marker is a string consisting of letters and digits, surrounded by percentage signs. 
 Use loot.template() function to create a new template class. 
 
     local loot = require "loot"
@@ -41,6 +41,8 @@ Creates a new object of the template class and initializes it with provided tabl
 ### template_object()
 
 Returns parsed template using markers provided to the template object. 
+
+Note: an attempt to print, concatate, or call tostring() on a template object will automatically build it. 
 
 ## Status
 

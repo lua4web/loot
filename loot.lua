@@ -1,5 +1,6 @@
 local class = require "oop"
 
+local tostring = tostring
 local find = string.find
 local sub = string.sub
 local len = string.len
@@ -53,6 +54,14 @@ function base:__init(markers)
 
 	function mt.__call(t, ...)
 		return self:__build(...)
+	end
+
+	function mt.__tostring(t)
+		return self:__build()
+	end
+
+	function mt.__concat(t, arg)
+		return t:__build()..tostring(arg)
 	end
 	
 	setmetatable(self, mt)
