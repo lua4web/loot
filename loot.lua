@@ -1,6 +1,5 @@
 local class = require "oop"
 
-local byte = string.byte
 local find = string.find
 local sub = string.sub
 local len = string.len
