@@ -1,5 +1,6 @@
 local class = require "oop"
 
+local byte = string.byte
 local find = string.find
 local sub = string.sub
 local len = string.len
@@ -14,7 +15,7 @@ local concat = table.concat
 
 local function markers_iter(s, start)
 	if start then
-		local f, l, marker = find(s, "%%(%a*)%%", start+1)
+		local f, l, marker = find(s, "%%([%a%d]*)%%", start+1)
 		return l or false, sub(s, start+1, (f or 0)-1), marker
 	end
 end
@@ -28,12 +29,27 @@ local base = class()
 function base:__init(markers)
 	local markers = markers or {}
 	self.__markers = markers
+	self.__object = true
 	
 	local mt = getmetatable(self)
 	local old_index = mt.__index or {}
 	
 	function mt.__index(t, k)
-		return old_index[k] or markers[k]
+		local res = old_index[k] or markers[k]
+		if type(k) == "string" and sub(k, 1, 2) ~= "__" then
+			if type(res) == "function" then
+				res = res(t)
+			end
+			if type(res) == "table" then
+				if res.__object then
+					res = res()
+				else
+					res = res(t)()
+				end
+			end
+			t[k] = res
+		end
+		return res
 	end
 
 	function mt.__call(t, ...)
@@ -44,22 +60,14 @@ function base:__init(markers)
 end
 
 function base:__getmarker(marker)
-	local val = self[marker]
-	if val then
-		if type(val) == "function" then
-			val = val(self)
-		end
-		if type(val) == "table" then
-			val = val(self)()
-		end
-		self[marker] = val
-		return val
-	else
-		return "%"..marker.."%"
-	end
+	return self[marker] or "%"..marker.."%"
 end
 
 function base:__build()
+	if self.__prepare then
+		self:__prepare()
+	end
+
 	local res = {}
 	
 	for i, before, marker in markers(self.__template) do
