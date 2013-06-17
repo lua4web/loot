@@ -7,24 +7,7 @@ local len = string.len
 local insert = table.insert
 local concat = table.concat
 
--- this function must search for the next marker in "s" after the "start" symbol and return up to three values:
--- last symbol of the found marker or false if it's not found;
--- substring of "s" between the "start" symbol and start of the found marker;
--- found marker or nil if it's not found. 
--- if not start then nothing is returned. 
-
-local function markers_iter(s, start)
-	if start then
-		local f, l, marker = find(s, "%%([%a%d]*)%%", start+1)
-		return l or false, sub(s, start+1, (f or 0)-1), marker
-	end
-end
-
-local function markers(s)
-	return markers_iter, s, 0
-end
-
-local base = class()
+local base = {}
 
 function base:__init(markers)
 	local markers = markers or {}
