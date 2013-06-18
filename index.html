@@ -2,65 +2,282 @@
 <html>
 
 <head>
-<title>loot</title>
+<title>loot: Introduction</title>
 <meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 
 <body>
 
-<article>
+<header>
 
-<h1>loot</h1>
+<h1><a href="index.html">loot</a></h1>
+
+<ul>
+
+<li class="left"><a href="index.html">Introduction</a></li>
+<li class="left"><a href="install.html">Installation</a></li>
+<li class="left"><a href="usage.html">Usage</a></li>
+<li class="left"><a href="guide.html">Guide</a></li>
+
+<li class="right"><a href="mailto:lua4web@gmail.com">lua4web@gmail.com</a></li>
+<li class="right"><a href="https://github.com/lua4web/loot">loot at GitHub</a></li>
+
+</ul>
+
+</header>
+
+<article>
 
 <h2>Introduction</h2>
 
-<p>loot is an object oriented template system for <a href="http://www.lua.org/">Lua</a>. <br>
-loot uses a simple OOP implementation using metamethods. Objects refer to classes using __index metamethod, and classes refer to classes they inherited from in the same way. Methods are called using colon syntax, and __init method is automatically called upon creating of an object. </p>
+<p>
+loot is an object oriented template system for <a href="http://www.lua.org/">Lua</a>. <br>
+It provides tools to easily create, maintain and use complex systems of templates using OOP ideas. <br>
+</p>
 
-<p>loot provides a simple class called "base" which operates on a template string. It can contain several markers. Marker is a string surrounded by percentage signs. Markers shouldn't start with two underscores. In order to represent a percentage sign without any special meaning, double it. <br>
-Use loot.template() function to create a new template class. </p>
+<p>
+In loot's conception, every template is a class. To create an empty template class, use function <code>loot.template()</code>. <br>
+An obligatory field for a template class is <code>__template</code>, which should contain a string - the actual template in general meaning. Passing a string to <code>loot.template()</code> will automatically set it as template string for the created class. 
+</p>
 
-<pre><code>local loot = require "loot"
-greeting_template = loot.template "Hello, %username%!" -- creating a template class
-greeting_object = greeting_template{                   -- creating a template object
-	username = "mrsmith"
+<pre>
+local loot = require "loot"
+my_template = loot.template "Hello, world!"
+print(my_template.__template) -- Hello, world!
+</pre>
+
+<p>
+template string can contain a number of markers. Marker is a string surrounded by percentage signs. <br>
+The string between percentage signs is the name of that marker. <br>
+Double all percentage signs without special meaning. <br>
+As an example, string <code>"Hello, %name%! This day is 20%% %kind% than yesterday!"</code> contains two markers - <code>name</code> and <code>kind</code>. <br>
+Due to technical reasons, marker's name can't start with two underscores. 
+</p>
+
+<h3>Building template</h3>
+
+<p>
+In order to fill a template class with data, it is needed to create an object of that clas. In the OOP implementation loot uses, calling the class with a single argument(table containg the data) will do it. <br>
+After that, call method <code>__build</code> to get the result of filling template. Methods are called using colon syntax. 
+</p>
+
+<pre>
+my_template = loot.template "Hello, %name%! This day is 20%% %kind% than yesterday!"
+my_template_object = my_template{
+	name = "John",
+	kind = "cooler"
 }
-greeting_text = greeting_object()                      -- parsing template
-print(greeting_text)                                   -- Hello, mrsmith!
-</code></pre>
+print(my_template_object:__build()) -- Hello, John! This day is 20% cooler than yesterday!
+</pre>
 
-<h3>Advanced usage</h3>
+<p>
+Luckily, there are several shortcuts to perform the same thing in a cleaner way: calling a template object, printing or concatenating it automatically builds it. 
+</p>
 
-<p>When a template_object of is parsed, %marker% is substituted with template_object.marker. Due to OOP mechanics, template_object.marker can refer to field of template_object, field of template_class(the class of template_object) or field of any class template_class inherited from. </p>
+<pre>
+my_text = my_template{
+	name = "John",
+	kind = "cooler"
+}
+print(my_text) -- Hello, John! This day is 20% cooler than yesterday!
+</pre>
 
-<p>If template_object.marker is a function, then it is called as method of template_object(the result is used to substitute the marker). This can be used to add complex behaviour to template. </p>
+<h3>Data inheritance</h3>
 
-<p>If template_object.marker is a table, then it is considered another template class. It is parsed and the result is used to substitute the marker. This can be used to build a structured system of linked templates. </p>
+<p>
+When building a template, loot substitutes each marker with the corresponding field of template_object. In fact, initialization of an object copies passed data into it. This data can still be accessed after building of the template. 
+</p>
 
-<h2>Reference</h2>
+<pre>
+print(my_text.name) -- John
+print(my_text.kind) -- cooler
+</pre>
 
-<h3>loot.template(string || class)</h3>
+<p>
+If the field can't be found in the template object, it is searched in the template class, then in all the classes it inherited from. Consider this example:
+</p>
 
-<p>Returns a new template class. <br>
-If the argument is a string, it's used as the template for the created class. <br>
-If the argument is a class, it's used as the parent to inherit from. </p>
+<pre>
+generic_letter_template = loot.template [[
+%greeting%, %name%!
+%text%
+Best wishes, 
+%author%
+]]
 
-<h3>template_class(table)</h3>
+generic_letter_template.greeting = "Hello"
 
-<p>Creates a new object of the template class and initializes it with provided table of markers. </p>
+my_letter_template = loot.template(generic_letter_template)
+my_letter_template.author = "John"
 
-<h3>template_object()</h3>
+my_letter = my_letter_template{
+	name = "Bob",
+	text = "What's up?"
+}
 
-<p>Returns parsed template using markers provided to the template object. <br>
-Note: an attempt to print, concatate, or call tostring() on a template object will automatically build it. </p>
+print(my_letter) --[[
+Hello, Bob!
+What's up?
+Best wishes, 
+John
+]]
 
-<h2>Status</h2>
+</pre>
 
-<p>loot is still under development. </p>
+<p>
+Here, <code>my_letter_template</code> inherits from <code>generic_letter_template</code>. <br>
+Value for <code>greeting marker</code> is found in <code>generic_letter_template</code> class, value for <code>author</code> is found in the <code>my_letter_template</code> class, and fields <code>name</code> and <code>text</code> are provided during initialization. 
+</p>
+
+<h3>Linking templates</h3>
+
+<p>
+A powerful concept of loot is that not only a plain string can be provided as a marker's value. <br>
+If a function is provided, than it is called as method of the template object, and the result is used as marker's value. 
+</p>
+
+<pre>
+meter_template = loot.template "It is %kind% outside"
+function meter_template:kind() -- marker's field is a function
+	if self.temperature > 30 then
+		return "hot"
+	elseif self.temperature > 20 then
+		return "warm"
+	elseif self.temperature >= 0 then
+		return "not as warm as desired"
+	else
+		return "cold"
+	end
+end
+
+meter = meter_template{
+	temperature = 15
+}
+print(meter) -- It is warm outside
+</pre>
+
+<p>
+As you can see, loot doesn't provide any tools to embed behaviour into template strings; instead, it provides a clean way to add behaviour to templates using nothing but Lua. <br>
+If a template class is provided as value of marker, than an object of it is initialized using all the data parent object already holds, then it is built, and the result is used as marker's value. 
+</p>
+
+<pre>
+page_template = loot.template [[
+&lt;html>
+&lt;head>
+&lt;title>%title%&lt;title>
+&lt;/title>
+&lt;body>
+%body%
+&lt;/body>
+&lt;/html>]]
+
+layout_template = loot.template [[
+&lt;h1>%title%&lt;/h1>
+&lt;article>
+%content%
+&lt;/article>
+&lt;footer>
+Generated using loot
+&lt;/footer>]]
+
+page_template.body = layout_template -- templates are now linked
+
+homepage = page_template{
+	title = "My homepage",
+	content = "Nothing here yet..."
+}
+print(homepage) --[[
+&lt;html>
+&lt;head>
+&lt;title>My homepage&lt;title>
+&lt;/title>
+&lt;body>
+&lt;h1>My homepage&lt;/h1>
+&lt;article>
+Nothing here yet...
+&lt;/article>
+&lt;footer>
+Generated using loot
+&lt;/footer>
+&lt;/body>
+&lt;/html>
+]]
+</pre>
+
+<p>
+This is used to link top-level templates with lower-level ones. <br>
+Finally, if a marker's value is a template object, it is built and result is used to substitute the marker. <br>
+Note that these mechanics can be combined: a marker-function can return a template class or object. 
+</p>
+
+<pre>
+
+layout_template = loot.template [[
+%panel%
+&lt;h1>%title%&lt;/h1>
+&lt;article>
+%content%
+&lt;/article>
+&lt;footer>
+Generated using loot
+&lt;/footer>]]
+
+loginpanel = loot.template [[
+&lt;form>
+Username: &lt;input>
+Password: &lt;input>
+&lt;/form>]]
+
+userpanel = loot.template "Hello, %username%!"
+
+function layout_template:panel()
+	if self.logged then
+		return userpanel
+	else
+		return loginpanel
+	end
+end
+
+layout = layout_template{
+	logged = true,
+	username = "smith"
+}
+print(layout) --[[
+Hello, smith!
+&lt;h1>%title%&lt;/h1>
+&lt;article>
+%content%
+&lt;/article>
+&lt;footer>
+Generated using loot
+&lt;/footer>
+]]
+</pre>
+
+<p>
+Find other examples of using loot <a href="usage.html">here</a>. <br>
+Find out how to use loot most efficiently <a href="guide.html">here</a>. 
+</p>
+
+<h2>Performance</h2>
+
+<p>
+loot's main function, <code>__build</code>, is written in C, so that the performance of it is rather good. 
+</p>
 
 <h2>Licensing</h2>
 
-<p>loot is (going to be) licensed under the same license as Lua. </p>
+<p>
+loot is (going to be) licensed under the same license as Lua itself(MIT/X11)
+</p>
+
+<h2>Status</h2>
+
+<p>
+loot is still under development. There are new features to be added, and current version(0.4) needs further testing. 
+</p>
 
 </article>
 

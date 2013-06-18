@@ -1,0 +1,31 @@
+body {
+color : #000;
+background-color : #fff;
+font-size : 12pt;
+font-family : helvetica, sans-serif;
+padding : 10px;
+}
+ul {
+list-style : none;
+}
+li {
+margin-right : 10px;
+}
+li.left {
+float : left;
+}
+li.right {
+float : right;
+}
+article {
+clear : both;
+margin-top : 60px;
+}
+pre {
+border : 1px solid black;
+padding : 5px;
+}
+code {
+border : 1px solid black;
+padding : 0 2px;
+}
