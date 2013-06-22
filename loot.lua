@@ -31,6 +31,8 @@ function base:__init(markers)
 	local markers = markers or {}
 	self.__markers = markers
 	self.__object = true
+
+	local mt = {}
 	
 	mt.__index = index
 
