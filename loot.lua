@@ -49,28 +49,14 @@ function base:__init(markers)
 	setmetatable(self, mt)
 end
 
-function base:__getmarker(marker)
-	return marker == "" and "%" or self[marker] or "%"..marker.."%"
-end
-
-function base:__build()
-	if self.__prepare then
-		self:__prepare()
-	end
-
-	local function helper(marker)
-		return self:__getmarker(marker)
-	end
-
-	return build(self.__template, helper)
-end
+base.__build = build
 
 local function template(parent)
 	if type(parent) == "table" then
 		return class(parent)
 	else
 		local c = class(base)
-		c.__template = parent
+		c.__template = parent or ""
 		return c
 	end
 end

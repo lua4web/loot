@@ -2,35 +2,57 @@
 #include "lualib.h"
 #include "lauxlib.h"
 
-// First argument: template string. 
-// Second argument: a function which accepts marker and returns its value. 
-
-// markers' names and strings between them find themselves on top of the stack. 
-// markers are replaced with value using provided function. It's popped during that, so it must be copied beforehand. 
-// So the result to be pushed to buffer is always on top of the stack. 
 static int build(lua_State *L) {
+	// 1 - self
+
+	lua_getfield(L, 1, "__template");
+	// 1 - self
+	// 2 - template
+	
+	size_t len;
+	const char *s = lua_tolstring(L, 2, &len);
+	if(s == NULL) {
+		s = "";
+		len = 0;
+	}
+
 	luaL_Buffer B;
 	luaL_buffinit(L, &B);
 
-	size_t len;
-	const char *s = luaL_checklstring(L, 1, &len);
-
 	size_t i = 0;
 	char inside = 0;
-
-	int funcref = luaL_ref(L, LUA_REGISTRYINDEX); // save the function
 	
 	while(i < len) {
 		if(s[i] == '%') {
 			if(inside) {
-				lua_rawgeti(L, LUA_REGISTRYINDEX, funcref); // push function
+				if(i) { // marker is not empty?
+					lua_pushlstring(L, s, i);
+					// 1 - self
+					// 2 - template
+					// 3 - marker
+
+					lua_gettable(L, 1); // pops the string!
+					// 1 - self
+					// 2 - template
+					// 3 - marker's value
+
+					if(lua_isnil(L, 3)) { // could not find marker
+						lua_pop(L, 1); // remove nil
+						luaL_addstring(&B, "%");
+						luaL_addlstring(&B, s, i); // add "%"..marker.."%"
+						luaL_addstring(&B, "%");
+					}
+					else {
+						luaL_addvalue(&B); // add marker's value
+					}
+				}
+				else { // marker is empty?
+					luaL_addstring(&B, "%");
+				}
 			}
-			lua_pushlstring(L, s, i);
-			if(inside) {
-				lua_call(L, 1, 1);
+			else {
+				luaL_addlstring(&B, s, i);
 			}
-			// now the thing on top of the stack is what is wanted to be added to buffer. 
-			luaL_addvalue(&B);
 			inside = !inside;
 			s += i+1;
 			len -= i+1;
@@ -47,8 +69,6 @@ static int build(lua_State *L) {
 	}
 	lua_pushlstring(L, s, len); // push the string after the last marker
 	luaL_addvalue(&B);
-
-	luaL_unref(L, LUA_REGISTRYINDEX, funcref);
 
 	luaL_pushresult(&B);
 
