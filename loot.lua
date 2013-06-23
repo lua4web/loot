@@ -1,24 +1,5 @@
-local build = require "build".build
 local tostring = tostring
 local sub = string.sub
-
-local function construct(c, ...)
-	local obj = {__parentclass = c}
-	setmetatable(obj, {__index = c})
-	c.__init(obj, ...)
-	return obj
-end
-
-local function class(parent)
-	local c = {__class = true}
-	setmetatable(c, {
-		__index = parent or {},
-		__call = construct
-	})
-	return c
-end
-
-local base = {}
 
 local function index(t, k)
 	local res = t.__parentclass[k] or t.__markers[k]
@@ -38,22 +19,38 @@ local function index(t, k)
 	return res
 end
 
+local build = require "build".build
+
 local function concat(a, b)
 	return tostring(a) .. tostring(b)
 end
 
-function base:__init(markers)
-	self.__markers = markers or {}
-	
-	setmetatable(self, {
+local function construct(c, markers) -- constructs an object of class c using markers
+	local obj = {
+		__parentclass = c,
+		__markers = markers or {}
+	}
+	setmetatable(obj, {
 		__index = index,
 		__call = build,
 		__tostring = build,
 		__concat = concat
 	})
+	return obj
 end
 
-base.__build = build
+local function class(parent) -- constructs a class inherited from parent
+	local c = {
+		__class = true
+	}
+	setmetatable(c, {
+		__index = parent or {},
+		__call = construct
+	})
+	return c
+end
+
+local base = {}
 
 local function template(parent)
 	if type(parent) == "table" then
