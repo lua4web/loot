@@ -41,6 +41,10 @@ static int build(lua_State *L) {
 		}
 	}
 
+	if(inside) { // this means that template was incorrect, let's get that last unpaired %
+		s--;
+		len++;
+	}
 	lua_pushlstring(L, s, len); // push the string after the last marker
 	luaL_addvalue(&B);
 
