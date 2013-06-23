@@ -56,7 +56,7 @@ local function template(parent)
 		return class(parent)
 	else
 		local c = class(base)
-		c.__template = parent or ""
+		c.__template = parent
 		return c
 	end
 end
