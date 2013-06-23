@@ -10,15 +10,15 @@ local concat = table.concat
 local base = {}
 
 local function index(t, k)
-	local res = t.__parent[k] or t.__markers[k]
+	local res = t.__parentclass[k] or t.__markers[k]
 	if type(k) == "string" and sub(k, 1, 2) ~= "__" then
 		if type(res) == "function" then
 			res = res(t, t.__markers[k])
 		end
 		if type(res) == "table" then
-			if res.__object then
+			if res.__parentclass then
 				res = res()
-			else
+			elseif res.__class then
 				res = res(t)()
 			end
 		end
@@ -28,9 +28,7 @@ local function index(t, k)
 end
 
 function base:__init(markers)
-	local markers = markers or {}
-	self.__markers = markers
-	self.__object = true
+	self.__markers = markers or {}
 
 	local mt = {}
 	

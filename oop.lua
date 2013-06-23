@@ -11,7 +11,7 @@ local function construct(c, ...)
 	-- adding references to class members
 	setmetatable(obj, {__index = c})
 	
-	obj.__parent = c
+	obj.__parentclass = c
 			
 	-- initialization
 	if c.__init then
@@ -24,6 +24,7 @@ local function class(parent)
 	
 	-- resulting class
 	local c = {}
+	c.__class = true
 	
 	-- default parent is an empty class
 	local parent = parent or {}
