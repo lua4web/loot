@@ -1,4 +1,3 @@
-#include <stdbool.h>
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
@@ -17,7 +16,7 @@ static int build(lua_State *L) {
 	const char *s = luaL_checklstring(L, 1, &len);
 
 	size_t i = 0;
-	bool inside = false;
+	char inside = 0;
 
 	int funcref = luaL_ref(L, LUA_REGISTRYINDEX); // save the function
 	
@@ -61,3 +60,4 @@ int luaopen_build (lua_State *L) {
 	luaL_register(L, "build", buildlib);
 return 1;
 }
+
