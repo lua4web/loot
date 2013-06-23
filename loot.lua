@@ -1,11 +1,22 @@
-local class = require "oop"
 local build = require "build".build
 local tostring = tostring
-local find = string.find
 local sub = string.sub
-local len = string.len
-local insert = table.insert
-local concat = table.concat
+
+local function construct(c, ...)
+	local obj = {__parentclass = c}
+	setmetatable(obj, {__index = c})
+	c.__init(obj, ...)
+	return obj
+end
+
+local function class(parent)
+	local c = {__class = true}
+	setmetatable(c, {
+		__index = parent or {},
+		__call = construct
+	})
+	return c
+end
 
 local base = {}
 
@@ -27,26 +38,19 @@ local function index(t, k)
 	return res
 end
 
+local function concat(a, b)
+	return tostring(a) .. tostring(b)
+end
+
 function base:__init(markers)
 	self.__markers = markers or {}
-
-	local mt = {}
 	
-	mt.__index = index
-
-	function mt.__call(t, ...)
-		return self:__build(...)
-	end
-
-	function mt.__tostring(t)
-		return self:__build()
-	end
-
-	function mt.__concat(t, arg)
-		return t:__build()..tostring(arg)
-	end
-	
-	setmetatable(self, mt)
+	setmetatable(self, {
+		__index = index,
+		__call = build,
+		__tostring = build,
+		__concat = concat
+	})
 end
 
 base.__build = build
@@ -61,4 +65,6 @@ local function template(parent)
 	end
 end
 
-return {template = template, base = base}
+return {
+	template = template
+}
