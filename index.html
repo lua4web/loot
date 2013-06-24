@@ -16,11 +16,10 @@
 <ul>
 
 <li class="left"><a href="index.html">Introduction</a></li>
-<li class="left"><a href="install.html">Installation</a></li>
-<li class="left"><a href="usage.html">Usage</a></li>
-<li class="left"><a href="guide.html">Guide</a></li>
+<li class="left"><a href="examples.html">Examples</a></li>
+<li class="left"><a href="doc.html">Documentation</a></li>
 
-<li class="right"><a href="mailto:lua4web@gmail.com">lua4web@gmail.com</a></li>
+<li class="right"><a href="mailto:lua4web@gmail.com">&lt;lua4web@gmail.com></a></li>
 <li class="right"><a href="https://github.com/lua4web/loot">loot at GitHub</a></li>
 
 </ul>
@@ -36,247 +35,46 @@ loot is an object oriented template system for <a href="http://www.lua.org/">Lua
 It provides tools to easily create, maintain and use complex systems of templates using OOP ideas. <br>
 </p>
 
-<p>
-In loot's conception, every template is a class. To create an empty template class, use function <code>loot.template()</code>. <br>
-An obligatory field for a template class is <code>__template</code>, which should contain a string - the actual template in general meaning. Passing a string to <code>loot.template()</code> will automatically set it as template string for the created class. 
-</p>
-
 <pre>
 local loot = require "loot"
-my_template = loot.template "Hello, world!"
-print(my_template.__template) -- Hello, world!
-</pre>
-
-<p>
-template string can contain a number of markers. Marker is a string surrounded by percentage signs. <br>
-The string between percentage signs is the name of that marker. <br>
-Double all percentage signs without special meaning. <br>
-As an example, string <code>"Hello, %name%! This day is 20%% %kind% than yesterday!"</code> contains two markers - <code>name</code> and <code>kind</code>. <br>
-Due to technical reasons, marker's name can't start with two underscores. 
-</p>
-
-<h3>Building template</h3>
-
-<p>
-In order to fill a template class with data, it is needed to create an object of that clas. In the OOP implementation loot uses, calling the class with a single argument(table containg the data) will do it. <br>
-After that, call method <code>__build</code> to get the result of filling template. Methods are called using colon syntax. 
-</p>
-
-<pre>
-my_template = loot.template "Hello, %name%! This day is 20%% %kind% than yesterday!"
-my_template_object = my_template{
-	name = "John",
-	kind = "cooler"
+template = loot.template "Hello, %username%!"
+filled_template = template{
+	username = "mrsmith"
 }
-print(my_template_object:__build()) -- Hello, John! This day is 20% cooler than yesterday!
+print(filled_template) -- Hello, mrsmith!
 </pre>
 
 <p>
-Luckily, there are several shortcuts to perform the same thing in a cleaner way: calling a template object, printing or concatenating it automatically builds it. 
+More complex examples can be found <a href="examples.html">here</a>. 
 </p>
 
-<pre>
-my_text = my_template{
-	name = "John",
-	kind = "cooler"
-}
-print(my_text) -- Hello, John! This day is 20% cooler than yesterday!
-</pre>
-
-<h3>Data inheritance</h3>
+<h2>Installation</h2>
 
 <p>
-When building a template, loot substitutes each marker with the corresponding field of template_object. In fact, initialization of an object copies passed data into it. This data can still be accessed after building of the template. 
+Install loot using <a href="http://luarocks.org">luarocks</a>:
+<ol>
+<li>Download the latest rockspec file from the <a href="https://github.com/lua4web/loot">git repo</a>. </li>
+<li>Pack it into rock using <code>luarocks pack loot-x.x-x.rockspec</code> command. </li>
+<li>Install it using <code>luarocks make</code>. </li>
+</ol>
 </p>
 
-<pre>
-print(my_text.name) -- John
-print(my_text.kind) -- cooler
-</pre>
+<h2>License</h2>
 
 <p>
-If the field can't be found in the template object, it is searched in the template class, then in all the classes it inherited from. Consider this example:
+Copyright © 2013 lua4web <a href="mailto:lua4web@gmail.com">&lt;lua4web@gmail.com></a>
 </p>
 
-<pre>
-generic_letter_template = loot.template [[
-%greeting%, %name%!
-%text%
-Best wishes, 
-%author%
-]]
-
-generic_letter_template.greeting = "Hello"
-
-my_letter_template = loot.template(generic_letter_template)
-my_letter_template.author = "John"
-
-my_letter = my_letter_template{
-	name = "Bob",
-	text = "What's up?"
-}
-
-print(my_letter) --[[
-Hello, Bob!
-What's up?
-Best wishes, 
-John
-]]
-
-</pre>
-
 <p>
-Here, <code>my_letter_template</code> inherits from <code>generic_letter_template</code>. <br>
-Value for <code>greeting marker</code> is found in <code>generic_letter_template</code> class, value for <code>author</code> is found in the <code>my_letter_template</code> class, and fields <code>name</code> and <code>text</code> are provided during initialization. 
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: 
 </p>
 
-<h3>Linking templates</h3>
-
 <p>
-A powerful concept of loot is that not only a plain string can be provided as a marker's value. <br>
-If a function is provided, than it is called as method of the template object, and the result is used as marker's value. 
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 </p>
 
-<pre>
-meter_template = loot.template "It is %kind% outside"
-function meter_template:kind() -- marker's field is a function
-	if self.temperature > 30 then
-		return "hot"
-	elseif self.temperature > 20 then
-		return "warm"
-	elseif self.temperature >= 0 then
-		return "not as warm as desired"
-	else
-		return "cold"
-	end
-end
-
-meter = meter_template{
-	temperature = 15
-}
-print(meter) -- It is warm outside
-</pre>
-
 <p>
-As you can see, loot doesn't provide any tools to embed behaviour into template strings; instead, it provides a clean way to add behaviour to templates using nothing but Lua. <br>
-If a template class is provided as value of marker, than an object of it is initialized using all the data parent object already holds, then it is built, and the result is used as marker's value. 
-</p>
-
-<pre>
-page_template = loot.template [[
-&lt;html>
-&lt;head>
-&lt;title>%title%&lt;title>
-&lt;/title>
-&lt;body>
-%body%
-&lt;/body>
-&lt;/html>]]
-
-layout_template = loot.template [[
-&lt;h1>%title%&lt;/h1>
-&lt;article>
-%content%
-&lt;/article>
-&lt;footer>
-Generated using loot
-&lt;/footer>]]
-
-page_template.body = layout_template -- templates are now linked
-
-homepage = page_template{
-	title = "My homepage",
-	content = "Nothing here yet..."
-}
-print(homepage) --[[
-&lt;html>
-&lt;head>
-&lt;title>My homepage&lt;title>
-&lt;/title>
-&lt;body>
-&lt;h1>My homepage&lt;/h1>
-&lt;article>
-Nothing here yet...
-&lt;/article>
-&lt;footer>
-Generated using loot
-&lt;/footer>
-&lt;/body>
-&lt;/html>
-]]
-</pre>
-
-<p>
-This is used to link top-level templates with lower-level ones. <br>
-Finally, if a marker's value is a template object, it is built and result is used to substitute the marker. <br>
-Note that these mechanics can be combined: a marker-function can return a template class or object. 
-</p>
-
-<pre>
-
-layout_template = loot.template [[
-%panel%
-&lt;h1>%title%&lt;/h1>
-&lt;article>
-%content%
-&lt;/article>
-&lt;footer>
-Generated using loot
-&lt;/footer>]]
-
-loginpanel = loot.template [[
-&lt;form>
-Username: &lt;input>
-Password: &lt;input>
-&lt;/form>]]
-
-userpanel = loot.template "Hello, %username%!"
-
-function layout_template:panel()
-	if self.logged then
-		return userpanel
-	else
-		return loginpanel
-	end
-end
-
-layout = layout_template{
-	logged = true,
-	username = "smith"
-}
-print(layout) --[[
-Hello, smith!
-&lt;h1>%title%&lt;/h1>
-&lt;article>
-%content%
-&lt;/article>
-&lt;footer>
-Generated using loot
-&lt;/footer>
-]]
-</pre>
-
-<p>
-Find other examples of using loot <a href="usage.html">here</a>. <br>
-Find out how to use loot most efficiently <a href="guide.html">here</a>. 
-</p>
-
-<h2>Performance</h2>
-
-<p>
-loot's main function, <code>__build</code>, is written in C, so that the performance of it is rather good. 
-</p>
-
-<h2>Licensing</h2>
-
-<p>
-loot is (going to be) licensed under the same license as Lua itself(MIT/X11)
-</p>
-
-<h2>Status</h2>
-
-<p>
-loot is still under development. There are new features to be added, and current version(0.4) needs further testing. 
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 </p>
 
 </article>

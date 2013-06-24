@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>loot: Examples</title>
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+
+<body>
+
+<header>
+
+<h1><a href="index.html">loot</a></h1>
+
+<ul>
+
+<li class="left"><a href="index.html">Introduction</a></li>
+<li class="left"><a href="examples.html">Examples</a></li>
+<li class="left"><a href="doc.html">Documentation</a></li>
+
+<li class="right"><a href="mailto:lua4web@gmail.com">&lt;lua4web@gmail.com></a></li>
+<li class="right"><a href="https://github.com/lua4web/loot">loot at GitHub</a></li>
+
+</ul>
+
+</header>
+
+<article>
+
+<p>
+These are examples of using loot. All of them assume that loot has been already loaded: <code>local loot = require "loot"</code>. 
+</p>
+
+<h2>Simple templates</h2>
+
+<pre>
+template = loot.template "Hello, %username%!" -- creates a new template using provided string
+filled_template = template{ -- creates a new template object using provided data
+	username = "mrsmith" -- fields correspond to strings between percentage signs in the template string
+}
+print(filled_template) -- Hello, mrsmith! -- fills in the data and prints the result
+</pre>
+
+<pre>
+template = loot.template "Hello, %name%! This day is 20%% %kind% than yesterday!"
+-- double all the percentage signs without special meaning
+filled_template = template{
+	kind = "cooler"
+}
+print(filled_template) -- Hello, %name%! This day is 20% cooler than yesterday!
+-- there is no data for field "name", so it's not processed at all
+</pre>
+
+<pre>
+template = loot.template "Hello, %name%! This day is 20%% %kind% than yesterday!"
+template.name = "John" -- template now contains data for marker "name"
+filled_template = template{
+	name = "Bob",
+	kind = "cooler"
+}
+print(filled_template) -- Hello, John! This day is 20% cooler than yesterday!
+-- provided data doesn't override data set for the template beforehand
+</pre>
+
+<h2>Filling templates</h2>
+
+<pre>
+template = loot.template "Hello, %name%! This day is 20%% %kind% than yesterday!"
+filled_template = template{
+	name = "Bob",
+	kind = "cooler"
+}
+-- Note that this hasn't actually generated string result. 
+-- It only linked template to the provided data. 
+-- Thinking OOP, it created an object of class "template" and initialized it. 
+-- There are several ways to get the string result...
+
+text = filled_template() -- call it
+print(filled_template) -- print it (writing to file or socket works, too)
+text = tostring(filled_template) -- tostring it
+text = filled_template .. some_string -- concatenate it
+</pre>
+
+<h2>Non-trivial behaviour</h2>
+
+<pre>
+template = loot.template "It is %kind% outside"
+function template:kind() -- marker is a method
+	if self.temperature > 30 then
+		return "hot"
+	elseif self.temperature > 20 then
+		return "warm"
+	elseif self.temperature >= 0 then
+		return "not as warm as desired"
+	else
+		return "cold"
+	end
+end
+
+filled_template = template{
+	temperature = 25
+}
+print(filled_template) -- It is warm outside
+</pre>
+
+<pre>
+template = loot.template [[String "%string%" is %n% characters long. ]]
+
+function template:n()
+	return self.string:len()
+end
+
+filled_template = template{
+	string = "foobar"
+}
+
+print(filled_template) -- String "foobar" is 6 characters long. 
+</pre>
+
+<h2>Nested templates</h2>
+
+<pre>
+template1 = loot.template [[
+&lt;html>
+&lt;head>
+&lt;title>%title%&lt;/title>
+&lt;/head>
+&lt;body>
+%body%
+&lt;/body>
+&lt;/html>
+]]
+
+template2 = loot.template [[
+&lt;h1>%title%&lt;/h1>
+&lt;div>
+%content%
+&lt;/div>]]
+
+template1.body = template2
+
+-- usage:
+
+filled_template = template1{
+	title = "My page",
+	content = "My content"
+}
+
+print(filled_template) --[[
+&lt;html>
+&lt;head>
+&lt;title>My page&lt;/title>
+&lt;/head>
+&lt;body>
+&lt;h1>My page&lt;/h1> -- nested template sees outer data
+&lt;div>
+My content
+&lt;/div>
+&lt;/body>
+&lt;/html>
+]]
+</pre>
+
+<h2>Preprocessing</h2>
+
+<pre>
+local md = require "markdown" -- lua library for parsing markdown
+
+template = loot.template [[
+&lt;article>
+&lt;header>
+Author: %author%&lt;br>
+%date%
+&lt;/header>
+&lt;div>
+%text%
+&lt;/div>
+&lt;/article>
+]]
+
+function template:text(text) -- methods receive outer data as argument
+	return md(text)
+end
+
+-- usage
+
+filled_template = template{
+	author = "Mr. Smith",
+	date = "12.04.2013",
+	text = [[
+# Header
+Hello!
+]]
+}
+
+print(filled_template) --[[
+&lt;article>
+&lt;header>
+Author: Mr. Smith&lt;br>
+12.04.2013
+&lt;/header>
+&lt;div>
+&lt;h1>Header&lt;/h1>
+&lt;p>Hello!&lt;/p>
+&lt;/div>
+&lt;/article>
+]]
+</pre>
+
+<pre>
+template = loot.template [[The string is "%string%"]]
+
+function template:__prepare() -- this method is called right before filling template
+	self.string = self.string:rep(self.n) -- something weird
+end
+
+filled_template = template{
+	string = "foobar",
+	n = 3
+}
+
+print(filled_template) -- The string is "foobarfoobarfoobar"
+
+-- Note that it's possible to define other special methods for a template class
+-- and then use them in __prepare() or markers-methods (see Non-trivial behaviour)
+-- Names of these methods should start with two underscores. 
+</pre>
+
+</article>
+
+</body>
+
+</html>
