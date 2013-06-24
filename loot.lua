@@ -1,3 +1,4 @@
+local type = type
 local tostring = tostring
 local sub = string.sub
 
@@ -44,19 +45,17 @@ local function class(parent) -- constructs a class inherited from parent
 		__class = true
 	}
 	setmetatable(c, {
-		__index = parent or {},
+		__index = parent,
 		__call = construct
 	})
 	return c
 end
 
-local base = {}
-
 local function template(parent)
 	if type(parent) == "table" then
 		return class(parent)
 	else
-		local c = class(base)
+		local c = class{}
 		c.__template = parent
 		return c
 	end
