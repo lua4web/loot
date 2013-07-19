@@ -1,5 +1,4 @@
 #include "lua.h"
-#include "lualib.h"
 #include "lauxlib.h"
 
 static int build(lua_State *L) {
@@ -100,13 +99,8 @@ static int build(lua_State *L) {
 	return 1;
 }
 
-static const struct luaL_reg buildlib[] = {
-	{"build", build},
-	{NULL, NULL}
-};
-
 int luaopen_build (lua_State *L) {
-	luaL_register(L, "build", buildlib);
-return 1;
+	lua_pushcfunction(L, build);
+	return 1;
 }
 

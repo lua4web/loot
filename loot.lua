@@ -20,7 +20,7 @@ local function index(t, k)
 	return res
 end
 
-local build = require "build".build
+local build = require "build"
 
 local function concat(a, b)
 	return tostring(a) .. tostring(b)

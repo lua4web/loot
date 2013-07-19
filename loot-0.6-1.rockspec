@@ -12,7 +12,7 @@ loot is an object oriented template system. It provides tools to easily create, 
 	license = "MIT/X11"
 }
 dependencies = {
-	"lua ~> 5.1"
+	"lua >= 5.1, < 5.3"
 }
 build = {
 	type = "builtin",
